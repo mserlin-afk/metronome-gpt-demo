@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type AppSession = {
@@ -10,7 +10,7 @@ type AppSession = {
   projects: { id: string; name: string }[];
 };
 
-export default function SuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -21,7 +21,6 @@ export default function SuccessPage() {
   const [displayName, setDisplayName] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Step 1: get Stripe customer ID from checkout session, then poll for Metronome provisioning
   useEffect(() => {
     if (!sessionId) {
       router.replace("/");
@@ -29,13 +28,11 @@ export default function SuccessPage() {
     }
 
     async function init() {
-      // Retrieve stripe customer ID from checkout session
       const res = await fetch(`/api/checkout-session?session_id=${sessionId}`);
       const { stripeCustomerId: cid } = await res.json();
       if (!cid) { router.replace("/"); return; }
       setStripeCustomerId(cid);
 
-      // Poll for Metronome provisioning
       intervalRef.current = setInterval(async () => {
         const statusRes = await fetch(`/api/session-status?stripeCustomerId=${cid}`);
         const { ready, metronomeCustomerId: mid } = await statusRes.json();
@@ -105,5 +102,17 @@ export default function SuccessPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
