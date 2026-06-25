@@ -1,6 +1,6 @@
 import Metronome from "@metronome/sdk";
 
-const client = new Metronome({ bearerToken: process.env.METRONOME_API_KEY });
+const client = new Metronome({ bearerToken: process.env.METRONOME_BEARER_TOKEN });
 
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

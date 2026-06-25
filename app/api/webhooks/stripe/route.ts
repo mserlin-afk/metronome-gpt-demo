@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import Metronome from "@metronome/sdk";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const metronome = new Metronome({ bearerToken: process.env.METRONOME_API_KEY });
+const metronome = new Metronome({ bearerToken: process.env.METRONOME_BEARER_TOKEN });
 
 export async function POST(request: Request) {
   const body = await request.text();
